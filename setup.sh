@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT_DIR=~/work/detection-habitat-spontane
+PROJECT_DIR=~/work/download_sentinel
 git clone https://github.com/InseeFrLab/download_sentinel.git $PROJECT_DIR
 cd $PROJECT_DIR
 
@@ -7,8 +7,8 @@ git config --global credential.helper store
 
 pre-commit install
 
-AWS_ACCESS_KEY_ID=`vault kv get -field=ACCESS_KEY_ID onyxia-kv/projet-slums-detection/s3` && export AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=`vault kv get -field=SECRET_ACCESS_KEY onyxia-kv/projet-slums-detection/s3` && export AWS_SECRET_ACCESS_KEY
+AWS_ACCESS_KEY_ID=`vault kv get -field=ACCESS_KEY_ID onyxia-kv/projet-hackaton-ntts-2025/s3` && export AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=`vault kv get -field=SECRET_ACCESS_KEY onyxia-kv/projet-hackaton-ntts-2025/s3` && export AWS_SECRET_ACCESS_KEY
 export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT
 
 ### Create a Json file containing credentials fot GCP authentification
@@ -25,7 +25,7 @@ declare -A variables
 for ((i=0; i<${#gcp_variables[@]}; i++)); do
   var_gcp="${gcp_variables[$i]}"
   var_ee="${ee_variables[$i]}"
-  variables["$var_ee"]=$(vault kv get -field="$var_gcp" "onyxia-kv/projet-slums-detection/GCP")
+  variables["$var_ee"]=$(vault kv get -field="$var_gcp" "onyxia-kv/projet-hackaton-ntts-2025/GCP")
 done
 
 # Loop through the associative array and construct the JSON string
