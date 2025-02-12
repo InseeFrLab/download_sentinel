@@ -10,22 +10,18 @@ from src.utils import (
     )
 
 from src.contours import get_dep_polygon
-from src.earth_engine_utils import (
-    get_s2_sr_cld_col,
-    add_cld_shdw_mask,
-    apply_cld_shdw_mask,
-    )
+from src.earth_engine_utils import get_s2_from_ee
 from src.constants import dep_dom_to_crs
 
 
-def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER):
+def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
     print("Lancement du téléchargement des données SENTINEL2")
     root_path = get_root_path()
 
-    path_s3 = f"""data-raw/SENTINEL2/{int(START_DATE[0:4])}/{DEP}/"""
+    path_s3 = f"""data-raw/SENTINEL2/{DEP}/{int(START_DATE[0:4])}/"""
     path_local = os.path.join(
         root_path,
-        f"""data/SENTINEL2/{int(START_DATE[0:4])}/{DEP}""",
+        f"""data/SENTINEL2/{DEP}/{int(START_DATE[0:4])}""",
     )
 
     os.makedirs(path_local, exist_ok=True)
@@ -41,12 +37,11 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER):
         coords = list(polygon_dep.exterior.coords)
         aoi = ee.Geometry.Polygon(coords)
 
-        s2_sr_cld_col = get_s2_sr_cld_col(aoi, START_DATE, END_DATE, CLOUD_FILTER)
-        s2_sr_median = s2_sr_cld_col.map(add_cld_shdw_mask).map(apply_cld_shdw_mask).median()
+        s2_sr_harmonized = get_s2_from_ee(aoi, START_DATE, END_DATE, CLOUD_FILTER)
 
         fishnet = geemap.fishnet(aoi, rows=4, cols=4, delta=0.5)
         geemap.download_ee_image_tiles(
-            s2_sr_median,
+            s2_sr_harmonized,
             fishnet,
             path_local,
             prefix="data_",
@@ -60,9 +55,10 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER):
             f"s3://{bucket}/{path_s3}",
             DEP,
             int(START_DATE[0:4]),
-            250,
+            DIM,
             12,
             num_poly,
+            polygon_dep,
             True,
         )
 
@@ -73,15 +69,16 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER):
 
 if __name__ == "__main__":
     bucket = "projet-hackathon-ntts-2025"
-    DEP = "81"
+    DEP = "69"
+    DIM = 250
 
     START_DATE = "2024-05-01"
     END_DATE = "2024-09-01"
-    CLOUD_FILTER = 60
+    CLOUD_FILTER = 20
 
     service_account = "slums-detection-sa@ee-insee-sentinel.iam.gserviceaccount.com"
     credentials = ee.ServiceAccountCredentials(service_account, "GCP_credentials.json")
 
     # Initialize the library.
     ee.Initialize(credentials)
-    download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER)
+    download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM)
