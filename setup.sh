@@ -19,7 +19,7 @@ declare -A variables
 for ((i=0; i<${#gcp_variables[@]}; i++)); do
   var_gcp="${gcp_variables[$i]}"
   var_ee="${ee_variables[$i]}"
-  variables["$var_ee"]=$(vault kv get -field="$var_gcp" "onyxia-kv/projet-hackaton-ntts-2025/GCP")
+  variables["$var_ee"]=$(vault kv get -field="$var_gcp" "onyxia-kv/projet-slums-detection/GCP")
 done
 
 # Loop through the associative array and construct the JSON string
