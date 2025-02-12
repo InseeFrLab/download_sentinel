@@ -26,6 +26,7 @@ def upload_satelliteImages(
     year,
     dim,
     n_bands,
+    num_poly,
     check_nbands12=False,
 ):
     """
@@ -65,7 +66,7 @@ def upload_satelliteImages(
     for i in tqdm(range(len(splitted_list_images))):
         image = splitted_list_images[i]
         bb = image.bounds
-        filename = str(int(bb[0])) + "_" + str(int(bb[1])) + "_" + str(i)
+        filename = str(int(bb[0])) + "_" + str(int(bb[1])) + "_" + str(num_poly) + "_" + str(i)
 
         lpath_image = lpath + "/" + filename + ".tif"
 

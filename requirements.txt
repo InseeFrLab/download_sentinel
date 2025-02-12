@@ -3,3 +3,4 @@ geemap
 astrovision
 hvac
 geedim
+geopandas
