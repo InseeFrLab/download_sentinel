@@ -1,17 +1,13 @@
 import os
 import shutil
-
 import ee
 import geemap
 
-from src.utils import (
-    get_root_path,
-    upload_satelliteImages
-    )
-
-from src.contours import get_dep_polygon
-from src.earth_engine_utils import get_s2_from_ee
+from src.utils import get_root_path
 from src.constants import dep_dom_to_crs
+from src.contours import get_dep_polygon
+from src.download_ee_images import get_s2_from_ee
+from src.process_ee_images import upload_satelliteImages
 
 
 def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
@@ -58,7 +54,8 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             DIM,
             12,
             num_poly,
-            polygon_dep,
+            polygon_dep.exterior,
+            EPSG,
             True,
         )
 
@@ -69,7 +66,7 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
 
 if __name__ == "__main__":
     bucket = "projet-hackathon-ntts-2025"
-    DEP = "69"
+    DEP = "81"
     DIM = 250
 
     START_DATE = "2024-05-01"
