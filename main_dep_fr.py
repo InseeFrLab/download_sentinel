@@ -4,39 +4,36 @@ import ee
 import geemap
 
 from src.utils import get_root_path
-from src.contours import get_contry_polygon
-from src.sample_polygon import sample_bboxes_from_multipolygon
+from src.constants import dep_dom_to_crs
+from src.contours import get_dep_polygon
 from src.download_ee_images import get_s2_from_ee
 from src.process_ee_images import upload_satelliteImages
-from src.constants import selected_bands
 
 
-def download_sentinel2(bucket, CONTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM):
+def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
     print("Lancement du téléchargement des données SENTINEL2")
     root_path = get_root_path()
 
-    path_s3 = f"""data-raw/SENTINEL2/{CONTRY}/{int(START_DATE[0:4])}/"""
+    path_s3 = f"""data-raw/SENTINEL2/{DEP}/{int(START_DATE[0:4])}/"""
     path_local = os.path.join(
         root_path,
-        f"""data/SENTINEL2/{CONTRY}/{int(START_DATE[0:4])}""",
+        f"""data/SENTINEL2/{DEP}/{int(START_DATE[0:4])}""",
     )
 
     os.makedirs(path_local, exist_ok=True)
 
-    EPSG = "EPSG:3035"
+    if DEP in dep_dom_to_crs.keys():
+        EPSG = dep_dom_to_crs[DEP]
+    else:
+        EPSG = "EPSG:2154"
 
-    polygons_contry = get_contry_polygon(CONTRY)
-    sampled_bboxes = sample_bboxes_from_multipolygon(polygons_contry, bbox_area_km2=10_000)
+    polygons_dep = get_dep_polygon(DEP)
 
-    for num_poly, polygon_contry in enumerate(sampled_bboxes):
-        polygon_contry = sampled_bboxes[15]
-        coords = list(polygon_contry.exterior.coords)
+    for num_poly, polygon_dep in enumerate(polygons_dep.geoms):
+        coords = list(polygon_dep.exterior.coords)
         aoi = ee.Geometry.Polygon(coords)
 
         s2_sr_harmonized = get_s2_from_ee(aoi, START_DATE, END_DATE, CLOUD_FILTER)
-        if s2_sr_harmonized.bandNames().getInfo() != selected_bands:
-            print('No result for this bbox')
-            continue
 
         fishnet = geemap.fishnet(aoi, rows=4, cols=4, delta=0.5)
         geemap.download_ee_image_tiles(
@@ -55,7 +52,7 @@ def download_sentinel2(bucket, CONTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             DIM,
             12,
             num_poly,
-            polygon_contry.exterior,
+            polygon_dep.exterior,
             EPSG,
             True,
         )
@@ -67,12 +64,12 @@ def download_sentinel2(bucket, CONTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM):
 
 if __name__ == "__main__":
     bucket = "projet-hackathon-ntts-2025"
-    CONTRY = "FR"
+    DEP = "69"
     DIM = 250
 
     # todo : recup des images sur les 4 saisons
-    START_DATE = "2018-05-01"
-    END_DATE = "2018-09-01"
+    START_DATE = "2020-05-01"
+    END_DATE = "2020-09-01"
     CLOUD_FILTER = 20
 
     service_account = "slums-detection-sa@ee-insee-sentinel.iam.gserviceaccount.com"
@@ -80,4 +77,4 @@ if __name__ == "__main__":
 
     # Initialize the library.
     ee.Initialize(credentials)
-    download_sentinel2(bucket, CONTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM)
+    download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM)

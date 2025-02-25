@@ -12,12 +12,10 @@ from src.utils import project_polygon, exportToMinio
 def upload_satelliteImages(
     lpath,
     rpath,
-    dep,
-    year,
     dim,
     n_bands,
     num_poly,
-    polygon_dep,
+    polygon_zone,
     epsg,
     check_nbands12=False,
 ):
@@ -30,9 +28,10 @@ def upload_satelliteImages(
             and to upload on MinIO.
         rpath: path to the MinIO repertory in which the image\
             should be uploaded.
-        dep: department number of the DOM.
         dim: tiles' size.
         n_bands: number of bands of the image to upload.
+        polygon_zone: polygon of the zone.
+        epsg: EPSG.
         check_nbands12: boolean that, if set to True, allows to check\
             if the image to upload is indeed 12 bands.\
             Usefull in download_sentinel2_ee.py
@@ -54,7 +53,7 @@ def upload_satelliteImages(
     splitted_list_images = [
         im for sublist in tqdm(list_satellite_images) for im in sublist.split(dim)
     ]
-    projected_polygon_dep = project_polygon(Polygon(polygon_dep), epsg)
+    projected_polygon_zone = project_polygon(Polygon(polygon_zone), epsg)
 
     print("Enregistrement des images sur le s3")
     for i in tqdm(range(len(splitted_list_images))):
@@ -63,7 +62,7 @@ def upload_satelliteImages(
         left, bottom, right, top = bb
         bbox = box(left, bottom, right, top)
 
-        if projected_polygon_dep.contains(bbox):  # on récupère uniquement les petites tuiles incluses dans le polygone du département
+        if projected_polygon_zone.contains(bbox):  # on récupère uniquement les petites tuiles incluses dans le polygone du département
             filename = str(int(bb[0])) + "_" + str(int(bb[1])) + "_" + str(num_poly) + "_" + str(i)
 
             lpath_image = lpath + "/" + filename + ".tif"

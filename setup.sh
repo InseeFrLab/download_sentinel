@@ -19,7 +19,7 @@ declare -A variables
 for ((i=0; i<${#gcp_variables[@]}; i++)); do
   var_gcp="${gcp_variables[$i]}"
   var_ee="${ee_variables[$i]}"
-  variables["$var_ee"]=$(vault kv get -field="$var_gcp" "onyxia-kv/projet-slums-detection/GCP")
+  variables["$var_ee"]=$(vault kv get -field="$var_gcp" "onyxia-kv/projet-hackathon-ntts-2025/GCP")
 done
 
 # Loop through the associative array and construct the JSON string
@@ -43,3 +43,5 @@ chown -R onyxia:users $PROJECT_DIR/
 export PROJ_LIB=/opt/conda/share/proj
 conda install -c conda-forge gdal=3.9.3 -y
 pip install -r requirements.txt
+
+mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp data/

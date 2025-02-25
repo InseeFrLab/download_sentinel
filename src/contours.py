@@ -2,6 +2,7 @@ import requests
 import geopandas as gpd
 from shapely.ops import unary_union
 from shapely.geometry import Polygon, MultiPolygon
+from src.constants import shapefile_path
 
 
 def get_dep_polygon(code_dep: str) -> MultiPolygon:
@@ -27,3 +28,17 @@ def get_dep_polygon(code_dep: str) -> MultiPolygon:
         dep_smooth = MultiPolygon([dep_smooth])
 
     return dep_smooth
+
+
+def get_contry_polygon(contry_id: str):
+    gdf = gpd.read_file(shapefile_path)
+    poly_contry = gdf[gdf['CNTR_ID'] == contry_id].iloc[0].geometry
+
+    # Lisser le polygone (facteur de tolérance ajustable)
+    tolerance = 0.001
+    poly_contry_smooth = poly_contry.simplify(tolerance, preserve_topology=True)
+
+    if isinstance(poly_contry_smooth, Polygon):
+        poly_contry_smooth = MultiPolygon([poly_contry_smooth])
+
+    return poly_contry_smooth
