@@ -1,14 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: dl-sentinel2-contry-
+  generateName: dl-sentinel2-country-
 spec:
   serviceAccountName: workflow
   entrypoint: main
   arguments:
     parameters:
       - name: countries
-        value: '['AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AU', 'AW', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BL', 'BM', 'BN', 'BO', 'BQ', 'AQ', 'AR', 'AS', 'AT', 'BR', 'BS', 'BT', 'BV', 'BW', 'BY', 'BZ', 'CA', 'CC', 'CD', 'CF', 'CG', 'CH', 'CI', 'CM', 'CK', 'CL', 'CN', 'CO', 'CP', 'CR', 'CU', 'CV', 'CW', 'CX', 'CY', 'CZ', 'DE', 'DJ', 'DK', 'DM', 'DO', 'DZ', 'EC', 'EE', 'EG', 'EH', 'EL', 'ER', 'ES', 'ET', 'FI', 'FJ', 'FK', 'FM', 'FO', 'GA', 'GD', 'GE', 'GG', 'GH', 'GI', 'GL', 'GM', 'GN', 'GQ', 'GS', 'GT', 'GU', 'GW', 'GY', 'HK', 'HM', 'HN', 'HR', 'HT', 'HU', 'IN', 'IQ', 'IR', 'ID', 'IE', 'IL', 'IM', 'IS', 'IT', 'JE', 'JM', 'JO', 'JP', 'LA', 'LB', 'LC', 'LI', 'LK', 'LR', 'LS', 'LU', 'LV', 'KE', 'KG', 'KH', 'KI', 'KM', 'KN', 'KP', 'KR', 'KW', 'KY', 'KZ', 'LY', 'MA', 'MC', 'MD', 'ME', 'MG', 'MH', 'MK', 'ML', 'MX', 'MY', 'MM', 'MN', 'MO', 'MP', 'MR', 'MS', 'MT', 'MU', 'MV', 'MW', 'MZ', 'NA', 'NC', 'NE', 'NF', 'NG', 'NI', 'NL', 'PF', 'NO', 'NP', 'NR', 'NU', 'NZ', 'OM', 'PA', 'PE', 'PG', 'RS', 'PH', 'PK', 'PL', 'PM', 'PN', 'PR', 'PS', 'PT', 'PW', 'PY', 'QA', 'RO', 'RU', 'RW', 'SA', 'SB', 'SC', 'SD', 'TH', 'TJ', 'TK', 'SE', 'SG', 'SH', 'SI', 'SJ', 'SK', 'SL', 'SM', 'SN', 'SO', 'SR', 'SS', 'ST', 'SV', 'SX', 'SY', 'SZ', 'TC', 'TD', 'TF', 'TG', 'TL', 'TM', 'TN', 'TO', 'TR', 'TT', 'TV', 'TZ', 'UA', 'UG', 'UK', 'UM', 'US', 'UY', 'UZ', 'VA', 'VC', 'VE', 'VG', 'VI', 'VN', 'VU', 'WF', 'WS', 'XA', 'XB', 'XC', 'XD', 'XE', 'XF', 'XG', 'XH', 'XI', 'XJL', 'XL', 'XM', 'XN', 'XO', 'XU', 'XV', 'XXR', 'XXS', 'YE', 'ZA', 'ZM', 'ZW', 'LT']'  # Liste des pays
+        value: |
+          ["AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AU", "AW", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "AQ", "AR", "AS", "AT", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CM", "CK", "CL", "CN", "CO", "CP", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "EL", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "GA", "GD", "GE", "GG", "GH", "GI", "GL", "GM", "GN", "GQ", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "IN", "IQ", "IR", "ID", "IE", "IL", "IM", "IS", "IT", "JE", "JM", "JO", "JP", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LU", "LV", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MX", "MY", "MM", "MN", "MO", "MP", "MR", "MS", "MT", "MU", "MV", "MW", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "PF", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PG", "RS", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RO", "RU", "RW", "SA", "SB", "SC", "SD", "TH", "TJ", "TK", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TZ", "UA", "UG", "UK", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "XA", "XB", "XC", "XD", "XE", "XF", "XG", "XH", "XI", "XJL", "XL", "XM", "XN", "XO", "XU", "XV", "XXR", "XXS", "YE", "ZA", "ZM", "ZW", "LT"]
 
   templates:
     # Entrypoint DAG template
@@ -19,15 +20,15 @@ spec:
             template: run-dl-task
             arguments:
               parameters:
-                - name: contry
-                  value: "{{item}}"  # Prend chaque pays de la liste
+                - name: country
+                  value: "{{item}}"
             withParam: "{{workflow.parameters.countries}}"  # Boucle sur la liste
 
     # Worker template
     - name: run-dl-task
       inputs:
         parameters:
-          - name: contry
+          - name: country
       container:
         image: inseefrlab/satellite-images-dev:v0.0.6
         imagePullPolicy: IfNotPresent
@@ -36,18 +37,18 @@ spec:
           "git clone https://github.com/InseeFrLab/download_sentinel.git &&
            cd download_sentinel/ &&
            source ./setup.sh &&
-           python main.py --contry {{inputs.parameters.contry}}"
+           python main.py --country {{inputs.parameters.country}}"
         ]
         env:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
-                name: my-s3-creds
+                name: mc-s3
                 key: accessKey
           - name: AWS_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                name: my-s3-creds
+                name: mc-s3
                 key: secretKey
           - name: AWS_DEFAULT_REGION
             value: us-east-1
