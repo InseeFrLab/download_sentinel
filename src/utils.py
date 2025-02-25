@@ -1,14 +1,7 @@
 import os
 from pathlib import Path
 import s3fs
-import PIL
-from tqdm import tqdm
-from shapely.geometry import box, Polygon
-
-from astrovision.data.satellite_image import (
-    SatelliteImage,
-)
-
+from shapely.geometry import Polygon
 from pyproj import Transformer
 
 
@@ -33,8 +26,7 @@ def project_polygon(polygon, destination_epsg, origin_epsg="EPSG:4326"):
 def exportToMinio(lpath, rpath):
     fs = s3fs.S3FileSystem(
         client_kwargs={'endpoint_url': 'https://'+'minio.lab.sspcloud.fr'},
-        key=os.environ["AWS_ACCESS_KEY_ID"],
-        secret=os.environ["AWS_SECRET_ACCESS_KEY"],
-        token=os.environ["AWS_SESSION_TOKEN"])
-
+        key=os.environ["AWS_ACCESS_KEY_ID"], 
+        secret=os.environ["AWS_SECRET_ACCESS_KEY"], 
+        token="")
     return fs.put(lpath, rpath, True)

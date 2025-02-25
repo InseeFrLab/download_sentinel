@@ -57,7 +57,8 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             True,
         )
 
-    shutil.rmtree(path_local, ignore_errors=True)
+        shutil.rmtree(path_local, ignore_errors=True)
+        os.makedirs(path_local, exist_ok=True)
 
     print(f"""Le processus est fini et les images sont stockées ici {f"s3://{bucket}/{path_s3}"}""")
 

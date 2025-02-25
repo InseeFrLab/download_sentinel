@@ -2,6 +2,7 @@ import os
 import shutil
 import ee
 import geemap
+import argparse
 
 from src.utils import get_root_path
 from src.contours import get_contry_polygon
@@ -60,14 +61,19 @@ def download_sentinel2(bucket, CONTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             True,
         )
 
-    shutil.rmtree(path_local, ignore_errors=True)
+        shutil.rmtree(path_local, ignore_errors=True)
+        os.makedirs(path_local, exist_ok=True)
 
     print(f"""Le processus est fini et les images sont stockées ici {f"s3://{bucket}/{path_s3}"}""")
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Raster tiling pipeline")
+    parser.add_argument("--contry", type=str, required=True, help="Contry (e.g., 'FR')")
+    args = parser.parse_args()
+
     bucket = "projet-hackathon-ntts-2025"
-    CONTRY = "FR"
+    CONTRY = args.contry
     DIM = 250
 
     # todo : recup des images sur les 4 saisons
