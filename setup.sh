@@ -5,6 +5,10 @@ git config --global credential.helper store
 
 pre-commit install
 
+AWS_ACCESS_KEY_ID=`vault kv get -field=ACCESS_KEY_ID onyxia-kv/projet-hackathon-ntts-2025/s3` && export AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=`vault kv get -field=SECRET_ACCESS_KEY onyxia-kv/projet-hackathon-ntts-2025/s3` && export AWS_SECRET_ACCESS_KEY
+export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT
+
 ### Create a Json file containing credentials fot GCP authentification
 # Declare an array to store the GCP variable names
 declare -a gcp_variables=("GCP_TYPE" "GCP_PROJECT_ID" "GCP_PRIVATE_KEY_ID" "GCP_PRIVATE_KEY" "GCP_CLIENT_EMAIL" "GCP_CLIENT_ID" "GCP_AUTH_URI" "GCP_TOKEN_URI" "GCP_AUTH_PROVIDER" "GCP_CLIENT_CERT")
@@ -44,4 +48,6 @@ export PROJ_LIB=/opt/conda/share/proj
 conda install -c conda-forge gdal=3.9.3 -y
 pip install -r requirements.txt
 
-mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp data/
+mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/
+unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/
+rm data/CNTR_RG_10M_2024_4326.shp.zip
