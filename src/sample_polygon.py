@@ -1,46 +1,79 @@
-import shapely
 import random
+import math
+from shapely.geometry import box
+import geopandas as gpd
 from tqdm import tqdm
 
 
-def generate_random_bbox_within(polygon, bbox_area_km2):
-    """Génère une bbox de superficie bbox_area_km2 km² à l'intérieur d'un polygone"""
-    minx, miny, maxx, maxy = polygon.bounds
-    bbox_size = (bbox_area_km2 * 100) ** 0.5  # Convertir km² en m et obtenir la taille du carré
-
-    attempts = 1000  # Nombre max d'essais pour trouver une bbox valide
-    for _ in range(attempts):
-        rand_x = random.uniform(minx, maxx - bbox_size)
-        rand_y = random.uniform(miny, maxy - bbox_size)
-        bbox = shapely.geometry.box(rand_x, rand_y, rand_x + bbox_size, rand_y + bbox_size)
-
-        if polygon.contains(bbox):  # Vérifie si la bbox est bien dans le polygone
-            return bbox
-    return None  # Si aucun bbox valide trouvé
-
-
 def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2, sample_ratio=0.01):
-    """Sélectionne des bounding boxes de bbox_area_km2 km² couvrant 1% du territoire"""
     sampled_bboxes = []
 
     print('Sample country polygon')
-    for polygon in tqdm(multipolygon.geoms):  # Boucle sur chaque polygone du MultiPolygon
-        polygon_area_km2 = polygon.area * 10000  # Convertir en km²
-
-        # Cas où le polygone est trop petit
-        if polygon_area_km2*sample_ratio < bbox_area_km2:
-            sampled_bboxes.append(shapely.geometry.box(*polygon.bounds))  # Ajouter la bbox complète du polygone
-            continue  # Passer au suivant
-
-        # Nombre de bboxes nécessaires pour échantillonner sample_ratio% de la surface
-        num_bboxes = int((polygon_area_km2 * sample_ratio) / bbox_area_km2)
-
-        selected_bboxes = set()
-        while len(selected_bboxes) < num_bboxes:
-            bbox = generate_random_bbox_within(polygon, bbox_area_km2)
-            if bbox and bbox not in selected_bboxes:
-                selected_bboxes.add(bbox)
-
-        sampled_bboxes.extend(selected_bboxes)
+    for polygon in tqdm(multipolygon.geoms):
+        if polygon.area*10000 < 6000:
+            poly_selected_bboxes = [polygon]
+        else:
+            poly_selected_bboxes = random_squares_in_polygon(polygon, square_percent_area=0.05, total_percent_area=1.0)
+        if poly_selected_bboxes:
+            sampled_bboxes.extend(poly_selected_bboxes)
 
     return sampled_bboxes
+
+
+def random_squares_in_polygon(big_polygon, square_percent_area=0.05, total_percent_area=1.0):
+    """
+    Sélectionne des polygones carrés aléatoires dans un grand polygone pour couvrir un % donné du territoire.
+
+    Args:
+        big_polygon (shapely.geometry.Polygon): Le polygone englobant (en WGS 84, EPSG:4326).
+        square_percent_area (float): Pourcentage de la surface totale à couvrir par chaque carré (ex: 0.05 pour 0,05%).
+        total_percent_area (float): Pourcentage total du territoire à couvrir (ex: 1 pour 1%).
+
+    Returns:
+        list of shapely.geometry.Polygon: Liste de carrés aléatoires non chevauchants.
+    """
+    # Convertir en projection métrique (EPSG:3857) pour obtenir la surface en km²
+    gdf = gpd.GeoDataFrame(geometry=[big_polygon], crs="EPSG:4326").to_crs("EPSG:3857")
+    big_polygon_m = gdf.geometry.iloc[0]
+    total_area_km2 = big_polygon_m.area / 1e6  # Conversion m² → km²
+
+    # Calculer la surface cible totale et par carré
+    total_target_area_km2 = (total_percent_area / 100) * total_area_km2
+    square_target_area_km2 = (square_percent_area / 100) * total_area_km2
+
+    # Déterminer combien de carrés sont nécessaires
+    num_squares = math.ceil(total_target_area_km2 / square_target_area_km2)
+
+    # Convertir en EPSG:4326 pour la génération des carrés
+    gdf = gdf.to_crs("EPSG:4326")
+    big_polygon = gdf.geometry.iloc[0]
+
+    # Calculer la taille d'un carré en km
+    square_size_km = math.sqrt(square_target_area_km2)
+
+    selected_squares = []
+    attempts = 0
+    max_attempts = 5000  # Éviter une boucle infinie
+
+    while len(selected_squares) < num_squares and attempts < max_attempts:
+        attempts += 1
+        # Choisir un point de départ aléatoire dans la bounding box
+        minx, miny, maxx, maxy = big_polygon.bounds
+        rand_x = random.uniform(minx, maxx)
+        rand_y = random.uniform(miny, maxy)
+
+        # Convertir la taille en degrés
+        square_size_deg_lat = square_size_km / 111.0  # Approximation
+        square_size_deg_lon = square_size_km / (111.0 * abs(math.cos(math.radians(rand_y))) + 1e-6)
+
+        # Créer le carré
+        square = box(rand_x, rand_y, rand_x + square_size_deg_lon, rand_y + square_size_deg_lat)
+
+        # Vérifier qu'il est bien dans le polygone et qu'il ne chevauche pas les autres
+        if big_polygon.contains(square) and all(not square.intersects(s) for s in selected_squares):
+            selected_squares.append(square)
+
+    if len(selected_squares) < num_squares:
+        raise ValueError(f"Impossible de placer {num_squares} carrés sans chevauchement après {max_attempts} essais.")
+
+    return selected_squares
