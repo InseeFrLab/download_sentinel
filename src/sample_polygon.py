@@ -19,8 +19,8 @@ def generate_random_bbox_within(polygon, bbox_area_km2):
     return None  # Si aucun bbox valide trouvé
 
 
-def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2, sample_ratio=0.1):
-    """Sélectionne des bounding boxes de bbox_area_km2 km² couvrant 10% de chaque polygone"""
+def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2, sample_ratio=0.01):
+    """Sélectionne des bounding boxes de bbox_area_km2 km² couvrant 1% du territoire"""
     sampled_bboxes = []
 
     print('Sample country polygon')

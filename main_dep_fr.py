@@ -43,7 +43,7 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             prefix="data_",
             crs=EPSG,
             scale=10,
-            num_threads=50,
+            num_threads=10,
         )
 
         upload_satelliteImages(
@@ -65,12 +65,12 @@ def download_sentinel2(bucket, DEP, START_DATE, END_DATE, CLOUD_FILTER, DIM):
 
 if __name__ == "__main__":
     bucket = "projet-hackathon-ntts-2025"
-    DEP = "69"
+    DEP = "976"
     DIM = 250
 
     # todo : recup des images sur les 4 saisons
-    START_DATE = "2020-05-01"
-    END_DATE = "2020-09-01"
+    START_DATE = "2025-01-01"
+    END_DATE = "2025-02-25"
     CLOUD_FILTER = 20
 
     service_account = "slums-detection-sa@ee-insee-sentinel.iam.gserviceaccount.com"

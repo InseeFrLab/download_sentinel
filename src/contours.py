@@ -6,7 +6,9 @@ from src.constants import shapefile_path
 
 
 def get_dep_polygon(code_dep: str) -> MultiPolygon:
-    url_geo = f"https://apicarto.ign.fr/api/cadastre/commune?code_dep={code_dep}"
+    code_dep_new = code_dep[:2]
+
+    url_geo = f"https://apicarto.ign.fr/api/cadastre/commune?code_dep={code_dep_new}"
     resp_geo = requests.get(url_geo)
 
     if resp_geo.status_code == 200:
@@ -14,6 +16,9 @@ def get_dep_polygon(code_dep: str) -> MultiPolygon:
         gdf = gpd.GeoDataFrame.from_features(dep_geojson["features"])
     else:
         print(f"⚠️ Erreur sur la commune {code_dep}: {resp_geo.status_code}")
+
+    if code_dep_new != code_dep:
+        gdf = gdf[gdf['code_insee'].str[:3] == code_dep]
 
     # 3. Fusionner les polygones des communes pour obtenir celui du département
     dep_polygon = unary_union(gdf.geometry)
