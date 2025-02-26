@@ -23,7 +23,7 @@ def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2, sample_ratio=0.
     """Sélectionne des bounding boxes de bbox_area_km2 km² couvrant 10% de chaque polygone"""
     sampled_bboxes = []
 
-    print('Sample contry polygon')
+    print('Sample country polygon')
     for polygon in tqdm(multipolygon.geoms):  # Boucle sur chaque polygone du MultiPolygon
         polygon_area_km2 = polygon.area / 1_000_000  # Convertir m² en km²
 

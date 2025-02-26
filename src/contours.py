@@ -30,15 +30,17 @@ def get_dep_polygon(code_dep: str) -> MultiPolygon:
     return dep_smooth
 
 
-def get_contry_polygon(contry_id: str):
+def get_country_polygon(country_id: str):
     gdf = gpd.read_file(shapefile_path)
-    poly_contry = gdf[gdf['CNTR_ID'] == contry_id].iloc[0].geometry
+    # gdf_eu = gdf[gdf['EU_STAT'] == 'T'][['CNTR_ID', 'NAME_ENGL']]
+
+    poly_country = gdf[gdf['CNTR_ID'] == country_id].iloc[0].geometry
 
     # Lisser le polygone (facteur de tolérance ajustable)
     tolerance = 0.001
-    poly_contry_smooth = poly_contry.simplify(tolerance, preserve_topology=True)
+    poly_country_smooth = poly_country.simplify(tolerance, preserve_topology=True)
 
-    if isinstance(poly_contry_smooth, Polygon):
-        poly_contry_smooth = MultiPolygon([poly_contry_smooth])
+    if isinstance(poly_country_smooth, Polygon):
+        poly_country_smooth = MultiPolygon([poly_country_smooth])
 
-    return poly_contry_smooth
+    return poly_country_smooth

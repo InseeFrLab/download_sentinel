@@ -48,6 +48,6 @@ export PROJ_LIB=/opt/conda/share/proj
 conda install -c conda-forge gdal=3.9.3 -y
 pip install -r requirements.txt
 
-mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/
+
 unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/
 rm data/CNTR_RG_10M_2024_4326.shp.zip

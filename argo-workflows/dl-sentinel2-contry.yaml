@@ -9,20 +9,76 @@ spec:
     parameters:
       - name: countries
         value: |
-          ["AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AU", "AW", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "AQ", "AR", "AS", "AT", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CM", "CK", "CL", "CN", "CO", "CP", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "EL", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "GA", "GD", "GE", "GG", "GH", "GI", "GL", "GM", "GN", "GQ", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "IN", "IQ", "IR", "ID", "IE", "IL", "IM", "IS", "IT", "JE", "JM", "JO", "JP", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LU", "LV", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LY", "MA", "MC", "MD", "ME", "MG", "MH", "MK", "ML", "MX", "MY", "MM", "MN", "MO", "MP", "MR", "MS", "MT", "MU", "MV", "MW", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "PF", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PG", "RS", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RO", "RU", "RW", "SA", "SB", "SC", "SD", "TH", "TJ", "TK", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TZ", "UA", "UG", "UK", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "XA", "XB", "XC", "XD", "XE", "XF", "XG", "XH", "XI", "XJL", "XL", "XM", "XN", "XO", "XU", "XV", "XXR", "XXS", "YE", "ZA", "ZM", "ZW", "LT"]
+          ['BE', 'BG', 'AT', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU', 'IE', 'IT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'LT']
 
   templates:
     # Entrypoint DAG template
     - name: main
       dag:
         tasks:
+          - name: create-gcp-json
+            template: create-gcp-json-task
           - name: run-dl
             template: run-dl-task
             arguments:
               parameters:
                 - name: country
                   value: "{{item}}"
-            withParam: "{{workflow.parameters.countries}}"  # Boucle sur la liste
+            withParam: "{{workflow.parameters.countries}}"
+            dependencies: [create-gcp-json]  # Attendre la création du JSON avant de lancer le téléchargement
+
+    # Task for creating GCP JSON credentials
+    - name: create-gcp-json-task
+      container:
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args: [
+          "#!/bin/sh &&
+           set -e &&
+           echo '{' > /tmp/GCP_credentials.json &&
+           echo '  \"type\": \"'$GCP_TYPE'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"project_id\": \"'$GCP_PROJECT_ID'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"private_key_id\": \"'$GCP_PRIVATE_KEY_ID'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"private_key\": \"'$GCP_PRIVATE_KEY'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"client_email\": \"'$GCP_CLIENT_EMAIL'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"client_id\": \"'$GCP_CLIENT_ID'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"auth_uri\": \"'$GCP_AUTH_URI'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"token_uri\": \"'$GCP_TOKEN_URI'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"auth_provider_x509_cert_url\": \"'$GCP_AUTH_PROVIDER'\",' >> /tmp/GCP_credentials.json &&
+           echo '  \"client_x509_cert_url\": \"'$GCP_CLIENT_CERT'\"' >> /tmp/GCP_credentials.json &&
+           echo '}' >> /tmp/GCP_credentials.json &&
+           echo 'GCP credentials JSON saved at /tmp/GCP_credentials.json'"
+        ]
+        env:
+          - name: GCP_AUTH_PROVIDER
+            value: https://www.googleapis.com/oauth2/v1/certs
+          - name: GCP_AUTH_URI
+            value: https://accounts.google.com/o/oauth2/auth
+          - name: GCP_CLIENT_CERT
+            value: https://www.googleapis.com/robot/v1/metadata/x509/slums-detection-sa%40ee-insee-sentinel.iam.gserviceaccount.com
+          - name: GCP_CLIENT_EMAIL
+            value: slums-detection-sa@ee-insee-sentinel.iam.gserviceaccount.com
+          - name: GCP_PROJECT_ID
+            value: ee-insee-sentinel
+          - name: GCP_TOKEN_URI
+            value: https://oauth2.googleapis.com/token
+          - name: GCP_TYPE
+            value: service_account
+          - name: GCP_PRIVATE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: gcp
+                key: gcpPrivateKey
+          - name: GCP_PRIVATE_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: gcp
+                key: gcpPrivateKeyId
+          - name: GCP_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: gcp
+                key: gcpClientId
 
     # Worker template
     - name: run-dl-task
@@ -36,7 +92,12 @@ spec:
         args: [
           "git clone https://github.com/InseeFrLab/download_sentinel.git &&
            cd download_sentinel/ &&
-           source ./setup.sh &&
+           export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
+           mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/ &&
+           unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/ &&
+           rm data/CNTR_RG_10M_2024_4326.shp.zip &&
+           conda install -c conda-forge gdal=3.9.3 -y &&
+           pip install -r requirements.txt &&
            python main.py --country {{inputs.parameters.country}}"
         ]
         env:
