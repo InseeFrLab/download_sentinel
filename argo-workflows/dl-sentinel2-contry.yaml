@@ -8,16 +8,12 @@ spec:
   arguments:
     parameters:
       - name: countries
-        value: |
-          ['BE', 'BG', 'AT', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU', 'IE', 'IT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'LT']
-
+        value: '["BE", "BG", "AT", "CY", "CZ", "DE", "DK", "EE", "EL", "ES", "FI", "FR", "HR", "HU", "IE", "IT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK", "LT"]'
   templates:
     # Entrypoint DAG template
     - name: main
       dag:
         tasks:
-          - name: create-gcp-json
-            template: create-gcp-json-task
           - name: run-dl
             template: run-dl-task
             arguments:
@@ -25,15 +21,18 @@ spec:
                 - name: country
                   value: "{{item}}"
             withParam: "{{workflow.parameters.countries}}"
-            dependencies: [create-gcp-json]  # Attendre la création du JSON avant de lancer le téléchargement
 
-    # Task for creating GCP JSON credentials
-    - name: create-gcp-json-task
+    # Worker template
+    - name: run-dl-task
+      inputs:
+        parameters:
+          - name: country
       container:
-        image: alpine:latest
-        command: ["/bin/sh", "-c"]
+        image: inseefrlab/satellite-images-dev:v0.0.6
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c"]
         args: [
-          "#!/bin/sh &&
+           "#!/bin/sh &&
            set -e &&
            echo '{' > /tmp/GCP_credentials.json &&
            echo '  \"type\": \"'$GCP_TYPE'\",' >> /tmp/GCP_credentials.json &&
@@ -47,7 +46,17 @@ spec:
            echo '  \"auth_provider_x509_cert_url\": \"'$GCP_AUTH_PROVIDER'\",' >> /tmp/GCP_credentials.json &&
            echo '  \"client_x509_cert_url\": \"'$GCP_CLIENT_CERT'\"' >> /tmp/GCP_credentials.json &&
            echo '}' >> /tmp/GCP_credentials.json &&
-           echo 'GCP credentials JSON saved at /tmp/GCP_credentials.json'"
+           echo 'GCP credentials JSON saved at /tmp/GCP_credentials.json' &&
+           git clone https://github.com/InseeFrLab/download_sentinel.git &&
+           cd download_sentinel/ &&
+           cp /tmp/GCP_credentials.json . &&
+           export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
+           mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/ &&
+           unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/ &&
+           rm data/CNTR_RG_10M_2024_4326.shp.zip &&
+           conda install -c conda-forge gdal=3.9.3 -y &&
+           pip install -r requirements.txt &&
+           python main.py --country {{inputs.parameters.country}}"
         ]
         env:
           - name: GCP_AUTH_PROVIDER
@@ -79,28 +88,6 @@ spec:
               secretKeyRef:
                 name: gcp
                 key: gcpClientId
-
-    # Worker template
-    - name: run-dl-task
-      inputs:
-        parameters:
-          - name: country
-      container:
-        image: inseefrlab/satellite-images-dev:v0.0.6
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/bash", "-c"]
-        args: [
-          "git clone https://github.com/InseeFrLab/download_sentinel.git &&
-           cd download_sentinel/ &&
-           export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
-           mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/ &&
-           unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/ &&
-           rm data/CNTR_RG_10M_2024_4326.shp.zip &&
-           conda install -c conda-forge gdal=3.9.3 -y &&
-           pip install -r requirements.txt &&
-           python main.py --country {{inputs.parameters.country}}"
-        ]
-        env:
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
