@@ -17,7 +17,8 @@ def upload_satelliteImages(
     num_poly,
     polygon_zone,
     epsg,
-    check_nbands12=False,
+    check_include=False,
+    check_nbands12=True,
 ):
     """
     Transforms a raster in a SatelliteImage and calls a function\
@@ -62,7 +63,9 @@ def upload_satelliteImages(
         left, bottom, right, top = bb
         bbox = box(left, bottom, right, top)
 
-        if projected_polygon_zone.contains(bbox):  # on récupère uniquement les petites tuiles incluses dans le polygone du département
+        if check_include and not projected_polygon_zone.contains(bbox):
+            continue  # on récupère uniquement les petites tuiles incluses dans le polygone du département
+        elif not check_include or projected_polygon_zone.contains(bbox):
             filename = str(int(bb[0])) + "_" + str(int(bb[1])) + "_" + str(num_poly) + "_" + str(i)
 
             lpath_image = lpath + "/" + filename + ".tif"
