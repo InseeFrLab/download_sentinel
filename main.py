@@ -28,7 +28,7 @@ def download_sentinel2(bucket, COUNTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM)
     EPSG = "EPSG:3035"
 
     polygons_country = get_country_polygon(COUNTRY)
-    sampled_bboxes = sample_bboxes_from_multipolygon(polygons_country, bbox_area_km2=5_000)
+    sampled_bboxes = sample_bboxes_from_multipolygon(polygons_country, bbox_area_km2=5)
 
     for num_poly, polygon_country in enumerate(sampled_bboxes):
         coords = list(polygon_country.exterior.coords)
