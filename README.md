@@ -21,6 +21,6 @@ nohup python main_dep_fr.py &
 Europeen contries polygons downloaded on the [eurostat website](https://ec.europa.eu/eurostat/web/gisco/geodata/administrative-units/countries). Scale = 10M, EPSG: 4326.
 
 ```
-nohup python main.py &
+nohup python main.py --country "BE" &
 ```
 
