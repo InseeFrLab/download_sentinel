@@ -5,22 +5,22 @@ import geopandas as gpd
 from tqdm import tqdm
 
 
-def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2, sample_ratio=0.01):
+def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2):
     sampled_bboxes = []
 
     print('Sample country polygon')
     for polygon in tqdm(multipolygon.geoms):
-        if polygon.area*10000 < 6000:
+        if polygon.area*10000 < bbox_area_km2:
             poly_selected_bboxes = [polygon]
         else:
-            poly_selected_bboxes = random_squares_in_polygon(polygon, square_percent_area=0.05, total_percent_area=1.0)
+            poly_selected_bboxes = random_squares_in_polygon(polygon)
         if poly_selected_bboxes:
             sampled_bboxes.extend(poly_selected_bboxes)
 
     return sampled_bboxes
 
 
-def random_squares_in_polygon(big_polygon, square_percent_area=0.05, total_percent_area=1.0):
+def random_squares_in_polygon(big_polygon, square_percent_area=0.05, total_percent_area=3.0):
     """
     Sélectionne des polygones carrés aléatoires dans un grand polygone pour couvrir un % donné du territoire.
 

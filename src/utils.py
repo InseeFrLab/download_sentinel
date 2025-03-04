@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
 import s3fs
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 from pyproj import Transformer
+import matplotlib.pyplot as plt
+import geopandas as gpd
 
 
 def get_root_path() -> Path:
@@ -30,3 +32,11 @@ def exportToMinio(lpath, rpath):
         secret=os.environ["AWS_SECRET_ACCESS_KEY"],
         token="")
     return fs.put(lpath, rpath, True)
+
+
+def plot_multipoly(multi_poly: MultiPolygon):
+    gdf = gpd.GeoDataFrame(geometry=[multi_poly])
+    fig, ax = plt.subplots()
+    gdf.plot(ax=ax, color='lightblue', edgecolor='black')
+
+    return plt.gcf()
