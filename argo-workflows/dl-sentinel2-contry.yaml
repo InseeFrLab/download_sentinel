@@ -28,34 +28,21 @@ spec:
         parameters:
           - name: country
       container:
-        image: inseefrlab/satellite-images-dev:v0.0.6
+        image: python:3.12-slim
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c"]
         args: [
            "#!/bin/sh &&
-           set -e &&
-           echo '{' > /tmp/GCP_credentials.json &&
-           echo '  \"type\": \"'$GCP_TYPE'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"project_id\": \"'$GCP_PROJECT_ID'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"private_key_id\": \"'$GCP_PRIVATE_KEY_ID'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"private_key\": \"'$GCP_PRIVATE_KEY'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"client_email\": \"'$GCP_CLIENT_EMAIL'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"client_id\": \"'$GCP_CLIENT_ID'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"auth_uri\": \"'$GCP_AUTH_URI'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"token_uri\": \"'$GCP_TOKEN_URI'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"auth_provider_x509_cert_url\": \"'$GCP_AUTH_PROVIDER'\",' >> /tmp/GCP_credentials.json &&
-           echo '  \"client_x509_cert_url\": \"'$GCP_CLIENT_CERT'\"' >> /tmp/GCP_credentials.json &&
-           echo '}' >> /tmp/GCP_credentials.json &&
-           echo 'GCP credentials JSON saved at /tmp/GCP_credentials.json' &&
+           apt-get update &&
+           apt-get install -y unzip wget git &&
+           wget -q https://dl.min.io/client/mc/release/linux-amd64/mc -O /tmp/mc &&
+           chmod +x /tmp/mc &&
            git clone https://github.com/InseeFrLab/download_sentinel.git &&
            cd download_sentinel/ &&
-           cp /tmp/GCP_credentials.json . &&
-           export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
-           mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/ &&
+           /tmp/mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/ &&
            unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/ &&
            rm data/CNTR_RG_10M_2024_4326.shp.zip &&
-           conda install -c conda-forge gdal=3.9.3 -y &&
-           pip install -r requirements.txt &&
+           source ./setup_argo.sh &&
            python main.py --country {{inputs.parameters.country}}"
         ]
         env:
