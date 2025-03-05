@@ -5,7 +5,7 @@ import geopandas as gpd
 from tqdm import tqdm
 
 
-def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2):
+def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2, total_percent_area=4.0):
     sampled_bboxes = []
 
     print('Sample country polygon')
@@ -13,20 +13,19 @@ def sample_bboxes_from_multipolygon(multipolygon, bbox_area_km2):
         if polygon.area*10000 < bbox_area_km2:
             poly_selected_bboxes = [polygon]
         else:
-            poly_selected_bboxes = random_squares_in_polygon(polygon)
+            poly_selected_bboxes = random_squares_in_polygon(polygon, total_percent_area)
         if poly_selected_bboxes:
             sampled_bboxes.extend(poly_selected_bboxes)
 
     return sampled_bboxes
 
 
-def random_squares_in_polygon(big_polygon, square_percent_area=0.05, total_percent_area=3.0):
+def random_squares_in_polygon(big_polygon, total_percent_area):
     """
     Sélectionne des polygones carrés aléatoires dans un grand polygone pour couvrir un % donné du territoire.
 
     Args:
         big_polygon (shapely.geometry.Polygon): Le polygone englobant (en WGS 84, EPSG:4326).
-        square_percent_area (float): Pourcentage de la surface totale à couvrir par chaque carré (ex: 0.05 pour 0,05%).
         total_percent_area (float): Pourcentage total du territoire à couvrir (ex: 1 pour 1%).
 
     Returns:
@@ -39,7 +38,7 @@ def random_squares_in_polygon(big_polygon, square_percent_area=0.05, total_perce
 
     # Calculer la surface cible totale et par carré
     total_target_area_km2 = (total_percent_area / 100) * total_area_km2
-    square_target_area_km2 = (square_percent_area / 100) * total_area_km2
+    square_target_area_km2 = 75  # taille fixée pour récupérer des images découpables en 250*250
 
     # Déterminer combien de carrés sont nécessaires
     num_squares = math.ceil(total_target_area_km2 / square_target_area_km2)
