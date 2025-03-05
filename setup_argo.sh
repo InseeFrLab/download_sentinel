@@ -7,7 +7,7 @@ declare -A variables
 for ((i=0; i<${#gcp_variables[@]}; i++)); do
   var_gcp="${gcp_variables[$i]}"
   var_ee="${ee_variables[$i]}"
-  variables["$var_ee"]=$var_gcp
+  variables["$var_ee"]=$(printf "%s" "$("$var_gcp")")
 done
 
 json_string="{"
