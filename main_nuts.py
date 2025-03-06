@@ -72,6 +72,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM):
     )
     filename2bbox.to_parquet(path_filename2bbox, index=False)
     exportToMinio(path_filename2bbox, f"s3://{bucket}/{path_s3}")
+    os.remove(path_filename2bbox)
     print(f"""Le processus est fini et les images sont stockées ici {f"s3://{bucket}/{path_s3}"}""")
 
 

@@ -80,7 +80,7 @@ def upload_satelliteImages(
                         file_path=lpath_image,
                         n_bands=12,
                     )
-                    new_row = pd.DataFrame({"filename": [lpath_image], "bbox": [image.bounds]})
+                    new_row = pd.DataFrame({"filename": [lpath_image.split('/')[-1]], "bbox": [image.bounds]})
                     filename2bbox = pd.concat([filename2bbox, pd.DataFrame(new_row)], ignore_index=True)
 
                     exportToMinio(lpath_image, rpath)
