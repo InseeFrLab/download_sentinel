@@ -2,6 +2,7 @@ import os
 import PIL
 from tqdm import tqdm
 from shapely.geometry import box, Polygon
+import pandas as pd
 
 from astrovision.data.satellite_image import (
     SatelliteImage,
@@ -17,6 +18,7 @@ def upload_satelliteImages(
     num_poly,
     polygon_zone,
     epsg,
+    filename2bbox,
     check_include=False,
     check_nbands12=True,
 ):
@@ -78,11 +80,19 @@ def upload_satelliteImages(
                         file_path=lpath_image,
                         n_bands=12,
                     )
+                    new_row = pd.DataFrame({"filename": [lpath_image], "bbox": [image.bounds]})
+                    filename2bbox = pd.concat([filename2bbox, pd.DataFrame(new_row)], ignore_index=True)
+
                     exportToMinio(lpath_image, rpath)
                     os.remove(lpath_image)
 
                 except PIL.UnidentifiedImageError:
                     print("L'image ne possède pas assez de bandes")
             else:
+                new_row = pd.DataFrame({"filename": [lpath_image.split('/')[-1]], "bbox": [bb]})
+                filename2bbox = pd.concat([filename2bbox, pd.DataFrame(new_row)], ignore_index=True)
+
                 exportToMinio(lpath_image, rpath)
                 os.remove(lpath_image)
+
+    return filename2bbox

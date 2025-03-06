@@ -2,6 +2,12 @@ import ee
 from src.constants import selected_bands
 
 
+def add_indices(image):
+    ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI')  # (NIR - Red) / (NIR + Red)
+    ndwi = image.normalizedDifference(['B3', 'B8']).rename('NDWI')  # (Green - NIR) / (Green + NIR)
+    return image.addBands([ndvi, ndwi])
+
+
 def mask_s2_clouds(image):
     """Masks clouds in a Sentinel-2 image using the QA band.
 
@@ -34,6 +40,7 @@ def get_s2_from_ee(aoi, start_date, end_date, CLOUD_FILTER):
         .filterBounds(aoi)
         .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', CLOUD_FILTER))
         .map(mask_s2_clouds)
+        .map(add_indices)
         .select(selected_bands)
     )
     return dataset.median()

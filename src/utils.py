@@ -25,7 +25,7 @@ def project_polygon(polygon, destination_epsg, origin_epsg="EPSG:4326"):
     return projected_poly
 
 
-def exportToMinio(lpath, rpath):
+def exportToMinio(lpath, rpath):    
     fs = s3fs.S3FileSystem(
         client_kwargs={'endpoint_url': 'https://'+'minio.lab.sspcloud.fr'},
         key=os.environ["AWS_ACCESS_KEY_ID"],

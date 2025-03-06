@@ -24,3 +24,10 @@ Europeen contries polygons downloaded on the [eurostat website](https://ec.europ
 nohup python main.py --country "BE" &
 ```
 
+## NUTS 3 in UE
+
+Polygons of NUTS-3 downloaded [here](https://gisco-services.ec.europa.eu/distribution/v2/nuts/nuts-2021-files.html). File : NUTS_RG_01M_2021_4326_LEVL_3.gpkg
+
+```
+nohup python main_nuts.py --nuts3 "BE100" --startDate "2018-05-01" --endDate "2018-09-01" &
+```

@@ -2,7 +2,7 @@ import requests
 import geopandas as gpd
 from shapely.ops import unary_union
 from shapely.geometry import Polygon, MultiPolygon
-from src.constants import shapefile_path
+from src.constants import contries_filepath, nuts3_filepath
 
 
 def get_dep_polygon(code_dep: str) -> MultiPolygon:
@@ -36,7 +36,7 @@ def get_dep_polygon(code_dep: str) -> MultiPolygon:
 
 
 def get_country_polygon(country_id: str):
-    gdf = gpd.read_file(shapefile_path)
+    gdf = gpd.read_file(contries_filepath)
     # gdf_eu = gdf[gdf['EU_STAT'] == 'T'][['CNTR_ID', 'NAME_ENGL']]
 
     poly_country = gdf[gdf['CNTR_ID'] == country_id].iloc[0].geometry
@@ -49,3 +49,18 @@ def get_country_polygon(country_id: str):
         poly_country_smooth = MultiPolygon([poly_country_smooth])
 
     return poly_country_smooth
+
+
+def get_nuts3_polygon(nuts3_id: str):
+    gdf = gpd.read_file(nuts3_filepath)
+
+    poly_nuts3 = gdf[gdf['NUTS_ID'] == nuts3_id].iloc[0].geometry
+
+    # Lisser le polygone (facteur de tolérance ajustable)
+    tolerance = 0.001
+    poly_nuts3_smooth = poly_nuts3.simplify(tolerance, preserve_topology=True)
+
+    if isinstance(poly_nuts3_smooth, Polygon):
+        poly_nuts3_smooth = MultiPolygon([poly_nuts3_smooth])
+
+    return poly_nuts3_smooth
