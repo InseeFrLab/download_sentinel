@@ -16,12 +16,11 @@ spec:
                  {"nuts": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true},
                  {"nuts": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true},
                  {"nuts": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true}]'
+
   templates:
-    # Entrypoint DAG template
     - name: main
-      dag:
-        tasks:
-          - name: run-dl
+      steps:
+        - - name: run-dl-step
             template: run-dl-task
             arguments:
               parameters:
@@ -35,7 +34,6 @@ spec:
                   value: "{{item.exportCLC}}"
             withParam: "{{workflow.parameters.regions}}"
 
-    # Worker template
     - name: run-dl-task
       inputs:
         parameters:
@@ -48,8 +46,8 @@ spec:
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c"]
         args: [
-           "git clone https://github.com/InseeFrLab/download_sentinel.git &&
-           cd download_sentinel/ &&
+           "git clone https://github.com/InseeFrLab/hackathon-ntts-2025.git &&
+           cd hackathon-ntts-2025/preprocess &&
            export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
            mc cp s3/projet-hackathon-ntts-2025/NUTS_RG_01M_2021_4326_LEVL_3.gpkg data/ &&
            source ./setup_argo.sh &&
@@ -58,35 +56,6 @@ spec:
         env:
           - name: PROJ_LIB
             value: /opt/conda/share/proj
-          - name: GCP_AUTH_PROVIDER
-            value: https://www.googleapis.com/oauth2/v1/certs
-          - name: GCP_AUTH_URI
-            value: https://accounts.google.com/o/oauth2/auth
-          - name: GCP_CLIENT_CERT
-            value: https://www.googleapis.com/robot/v1/metadata/x509/slums-detection-sa%40ee-insee-sentinel.iam.gserviceaccount.com
-          - name: GCP_CLIENT_EMAIL
-            value: slums-detection-sa@ee-insee-sentinel.iam.gserviceaccount.com
-          - name: GCP_PROJECT_ID
-            value: ee-insee-sentinel
-          - name: GCP_TOKEN_URI
-            value: https://oauth2.googleapis.com/token
-          - name: GCP_TYPE
-            value: service_account
-          - name: GCP_PRIVATE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: gcp
-                key: gcpPrivateKey
-          - name: GCP_PRIVATE_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: gcp
-                key: gcpPrivateKeyId
-          - name: GCP_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: gcp
-                key: gcpClientId
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:

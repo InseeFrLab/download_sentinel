@@ -3,8 +3,8 @@
 ## Get started
 
 ```
-git clone https://github.com/InseeFrLab/download_sentinel.git
-cd download_sentinel
+git clone https://github.com/InseeFrLab/hackathon-ntts-2025.git
+cd hackathon-ntts-2025/preprocess
 source ./setup.sh
 ```
 

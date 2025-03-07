@@ -134,8 +134,11 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
             download_label("tiff", label_dir+filename, common_params, export_url)
 
             img = Image.open(label_dir+filename)
+            img_array = np.array(img)
+            img_array[(img_array == 254) | (img_array == 255)] = 0
+
             npy_filename = filename.replace(".tif", ".npy")
-            np.save(label_dir + npy_filename, np.array(img))
+            np.save(label_dir + npy_filename, img_array)
 
             exportToMinio(
                 label_dir+npy_filename,

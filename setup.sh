@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT_DIR=~/work/download_sentinel
+PROJECT_DIR=~/work/hackathon-ntts-2025/preprocess
 
 git config --global credential.helper store
 

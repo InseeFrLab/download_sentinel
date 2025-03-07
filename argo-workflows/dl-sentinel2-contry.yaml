@@ -51,8 +51,8 @@ spec:
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c"]
         args: [
-           "git clone https://github.com/InseeFrLab/download_sentinel.git &&
-           cd download_sentinel/ &&
+           "git clone https://github.com/InseeFrLab/hackathon-ntts-2025.git &&
+           cd hackathon-ntts-2025/preprocess &&
            export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
            mc cp s3/projet-hackathon-ntts-2025/country_RG_01M_2021_4326_LEVL_3.gpkg data/ &&
            source ./setup_argo.sh &&

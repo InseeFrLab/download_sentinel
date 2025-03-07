@@ -67,7 +67,7 @@ def download_sentinel2(bucket, COUNTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM,
             EPSG,
             filename2bbox,
             metrics,
-            True,
+            False,
         )
 
         shutil.rmtree(path_local, ignore_errors=True)
