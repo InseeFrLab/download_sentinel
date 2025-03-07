@@ -40,7 +40,7 @@ done
 json_string="${json_string%,*} }"
 
 # Write the JSON string to a file
-echo "$json_string" > /work/hackathon-ntts-2025/preprocess/GCP_credentials.json
+echo "$json_string" > /home/onyxia/work/hackathon-ntts-2025/preprocess/GCP_credentials.json
 
 chown -R onyxia:users $PROJECT_DIR/
 
