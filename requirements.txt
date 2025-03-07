@@ -4,3 +4,4 @@ astrovision
 hvac
 geedim
 geopandas
+pyyaml

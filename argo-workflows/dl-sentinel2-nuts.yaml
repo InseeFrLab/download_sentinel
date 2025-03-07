@@ -8,14 +8,14 @@ spec:
   arguments:
     parameters:
       - name: regions
-        value: '[{"nuts": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
-                 {"nuts": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
-                 {"nuts": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
-                 {"nuts": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
-                 {"nuts": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True},
-                 {"nuts": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True},
-                 {"nuts": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True},
-                 {"nuts": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True}]'
+        value: '[{"nuts": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": true},
+                 {"nuts": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": true},
+                 {"nuts": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": true},
+                 {"nuts": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": true},
+                 {"nuts": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true},
+                 {"nuts": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true},
+                 {"nuts": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true},
+                 {"nuts": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": true}]'
   templates:
     # Entrypoint DAG template
     - name: main

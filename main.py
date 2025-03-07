@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     # Initialize the library.
     ee.Initialize(credentials)
-    download_sentinel2(bucket, COUNTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM, SAMPLE_PROP)
+    download_sentinel2(bucket, COUNTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM, SAMPLE_PROP, exportCLC)
 
     end_time = time.time() - start_time
     print(f"{COUNTRY} downloaded in {round(end_time/60)} min")

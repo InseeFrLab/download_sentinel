@@ -1,14 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: dl-sentinel2-country-
+  generateName: dl-sentinel2-contry-
 spec:
   serviceAccountName: workflow
   entrypoint: main
   arguments:
     parameters:
-      - name: countries
-        value: '["BE", "BG", "AT", "CY", "CZ", "DE", "DK", "EE", "EL", "ES", "FI", "FR", "HR", "HU", "IE", "IT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK", "LT"]'
+      - name: regions
+        value: '[{"country": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true},
+                 {"country": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true}]'
   templates:
     # Entrypoint DAG template
     - name: main
@@ -19,14 +26,26 @@ spec:
             arguments:
               parameters:
                 - name: country
-                  value: "{{item}}"
-            withParam: "{{workflow.parameters.countries}}"
+                  value: "{{item.country}}"
+                - name: startDate
+                  value: "{{item.startDate}}"
+                - name: endDate
+                  value: "{{item.endDate}}"
+                - name: sampleProp
+                  value: "{{item.sampleProp}}"
+                - name: exportCLC
+                  value: "{{item.exportCLC}}"
+            withParam: "{{workflow.parameters.regions}}"
 
     # Worker template
     - name: run-dl-task
       inputs:
         parameters:
           - name: country
+          - name: startDate
+          - name: endDate
+          - name: sampleProp
+          - name: exportCLC
       container:
         image: inseefrlab/onyxia-vscode-pytorch:py3.12.6
         imagePullPolicy: IfNotPresent
@@ -35,11 +54,9 @@ spec:
            "git clone https://github.com/InseeFrLab/download_sentinel.git &&
            cd download_sentinel/ &&
            export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
-           mc cp s3/projet-hackathon-ntts-2025/CNTR_RG_10M_2024_4326.shp.zip data/ &&
-           unzip data/CNTR_RG_10M_2024_4326.shp.zip -d data/ &&
-           rm data/CNTR_RG_10M_2024_4326.shp.zip &&
+           mc cp s3/projet-hackathon-ntts-2025/country_RG_01M_2021_4326_LEVL_3.gpkg data/ &&
            source ./setup_argo.sh &&
-           python main.py --country {{inputs.parameters.country}}"
+           python main_country.py --country {{inputs.parameters.country}} --startDate {{inputs.parameters.startDate}} --endDate {{inputs.parameters.endDate}} --sampleProp {{inputs.parameters.sampleProp}} --exportCLC {{inputs.parameters.exportCLC}}"
         ]
         env:
           - name: PROJ_LIB
