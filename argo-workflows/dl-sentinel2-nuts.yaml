@@ -8,14 +8,14 @@ spec:
   arguments:
     parameters:
       - name: regions
-        value: '[{"nuts": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01"},
-                 {"nuts": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01"},
-                 {"nuts": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01"},
-                 {"nuts": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01"},
-                 {"nuts": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01"},
-                 {"nuts": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01"},
-                 {"nuts": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01"},
-                 {"nuts": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01"}]'
+        value: '[{"nuts": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
+                 {"nuts": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
+                 {"nuts": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
+                 {"nuts": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01", "exportCLC": True},
+                 {"nuts": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True},
+                 {"nuts": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True},
+                 {"nuts": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True},
+                 {"nuts": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "exportCLC": True}]'
   templates:
     # Entrypoint DAG template
     - name: main
@@ -31,6 +31,8 @@ spec:
                   value: "{{item.startDate}}"
                 - name: endDate
                   value: "{{item.endDate}}"
+                - name: exportCLC
+                  value: "{{item.exportCLC}}"
             withParam: "{{workflow.parameters.regions}}"
 
     # Worker template
@@ -40,6 +42,7 @@ spec:
           - name: nuts
           - name: startDate
           - name: endDate
+          - name: exportCLC
       container:
         image: inseefrlab/onyxia-vscode-pytorch:py3.12.6
         imagePullPolicy: IfNotPresent
@@ -50,7 +53,7 @@ spec:
            export MC_HOST_s3=https://$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY@$AWS_S3_ENDPOINT &&
            mc cp s3/projet-hackathon-ntts-2025/NUTS_RG_01M_2021_4326_LEVL_3.gpkg data/ &&
            source ./setup_argo.sh &&
-           python main.py --nuts3 {{inputs.parameters.nuts}} --startDate {{inputs.parameters.startDate}} --endDate {{inputs.parameters.endDate}}"
+           python main_nuts.py --nuts3 {{inputs.parameters.nuts}} --startDate {{inputs.parameters.startDate}} --endDate {{inputs.parameters.endDate}} --exportCLC {{inputs.parameters.exportCLC}}"
         ]
         env:
           - name: PROJ_LIB

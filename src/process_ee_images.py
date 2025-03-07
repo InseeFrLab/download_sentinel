@@ -88,7 +88,7 @@ def upload_satelliteImages(
                     metrics["mean"].append(np.mean(image.array, axis=(1, 2)))
                     metrics["std"].append(np.std(image.array, axis=(1, 2)))
 
-                    # exportToMinio(lpath_image, rpath)
+                    exportToMinio(lpath_image, rpath)
                     os.remove(lpath_image)
 
                 except PIL.UnidentifiedImageError:
@@ -100,7 +100,7 @@ def upload_satelliteImages(
                 metrics["mean"].append(np.mean(image.satellite_image.array, axis=(1, 2)))
                 metrics["std"].append(np.std(image.satellite_image.array, axis=(1, 2)))
 
-                # exportToMinio(lpath_image, rpath)
+                exportToMinio(lpath_image, rpath)
                 os.remove(lpath_image)
 
     return filename2bbox, metrics
