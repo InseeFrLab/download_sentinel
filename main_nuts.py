@@ -99,9 +99,10 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
     os.remove(path_metrics_global)
 
     if exportCLC:
+        label_dir_raw = f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/"
         label_dir = os.path.join(
             root_path,
-            f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/",
+            label_dir_raw,
         )
         os.makedirs(label_dir)
         export_url = f"https://copernicus.discomap.eea.europa.eu/arcgis/rest/services/CLC_plus/CLMS_CLCplus_RASTER_{year}_010m_eu/ImageServer/exportImage"
@@ -137,7 +138,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
 
             exportToMinio(
                 label_dir+npy_filename,
-                f"{"s3://projet-hackathon-ntts-2025"}/{label_dir}",
+                f"{"s3://projet-hackathon-ntts-2025"}/{label_dir_raw}",
             )
 
     print(f"""Le processus est fini et les images sont stockées ici {f"s3://{bucket}/{path_s3}"}""")
