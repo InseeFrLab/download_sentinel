@@ -1,54 +1,31 @@
-import requests
 import geopandas as gpd
-from shapely.ops import unary_union
 from shapely.geometry import Polygon, MultiPolygon
-from src.constants import contries_filepath, nuts3_filepath
+from src.constants import nuts3_filepath
+import random
 
 
-def get_dep_polygon(code_dep: str) -> MultiPolygon:
-    code_dep_new = code_dep[:2]
+def get_sampled_country_polygon(country_id: str, sample_prop: float):
+    gdf = gpd.read_file(nuts3_filepath)
 
-    url_geo = f"https://apicarto.ign.fr/api/cadastre/commune?code_dep={code_dep_new}"
-    resp_geo = requests.get(url_geo)
+    country_gdf = gdf[gdf['CNTR_CODE'] == country_id]
 
-    if resp_geo.status_code == 200:
-        dep_geojson = resp_geo.json()
-        gdf = gpd.GeoDataFrame.from_features(dep_geojson["features"])
+    nuts3_polygons = country_gdf.geometry.tolist()
+
+    if sample_prop != 1:
+        k = len(nuts3_polygons)*sample_prop
+        nuts3_polygons_sampled = random.sample(nuts3_polygons, k)
     else:
-        print(f"⚠️ Erreur sur la commune {code_dep}: {resp_geo.status_code}")
+        nuts3_polygons_sampled = nuts3_polygons
 
-    if code_dep_new != code_dep:
-        gdf = gdf[gdf['code_insee'].str[:3] == code_dep]
+    nuts3_polygons_sampled_extended = []
+    for poly in nuts3_polygons_sampled:
+        if isinstance(poly, Polygon):
+            nuts3_polygons_sampled_extended.append()
+        if isinstance(poly, MultiPolygon):
+            for mini_poly in poly.geoms:
+                nuts3_polygons_sampled_extended.append(mini_poly)
 
-    # 3. Fusionner les polygones des communes pour obtenir celui du département
-    dep_polygon = unary_union(gdf.geometry)
-
-    # 4. Lisser le polygone (facteur de tolérance ajustable)
-    tolerance = 0.001
-    dep_smooth = dep_polygon.simplify(tolerance, preserve_topology=True)
-
-    # Si c'est un polygon, je le passe en multipolygon pour toujours avoir un multipolygon peu importe le département
-    # Il existe des départements avec des îles (ex Guadeloupe avec Marie Galante) et donc qui ont plusieurs polygones
-    if isinstance(dep_smooth, Polygon):
-        dep_smooth = MultiPolygon([dep_smooth])
-
-    return dep_smooth
-
-
-def get_country_polygon(country_id: str):
-    gdf = gpd.read_file(contries_filepath)
-    # gdf_eu = gdf[gdf['EU_STAT'] == 'T'][['CNTR_ID', 'NAME_ENGL']]
-
-    poly_country = gdf[gdf['CNTR_ID'] == country_id].iloc[0].geometry
-
-    # Lisser le polygone (facteur de tolérance ajustable)
-    tolerance = 0.001
-    poly_country_smooth = poly_country.simplify(tolerance, preserve_topology=True)
-
-    if isinstance(poly_country_smooth, Polygon):
-        poly_country_smooth = MultiPolygon([poly_country_smooth])
-
-    return poly_country_smooth
+    return nuts3_polygons_sampled_extended
 
 
 def get_nuts3_polygon(nuts3_id: str):

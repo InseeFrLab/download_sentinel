@@ -3,6 +3,7 @@ import PIL
 from tqdm import tqdm
 from shapely.geometry import box, Polygon
 import pandas as pd
+import numpy as np
 
 from astrovision.data.satellite_image import (
     SatelliteImage,
@@ -19,6 +20,7 @@ def upload_satelliteImages(
     polygon_zone,
     epsg,
     filename2bbox,
+    metrics,
     check_include=False,
     check_nbands12=True,
 ):
@@ -83,7 +85,10 @@ def upload_satelliteImages(
                     new_row = pd.DataFrame({"filename": [lpath_image.split('/')[-1]], "bbox": [image.bounds]})
                     filename2bbox = pd.concat([filename2bbox, pd.DataFrame(new_row)], ignore_index=True)
 
-                    exportToMinio(lpath_image, rpath)
+                    metrics["mean"].append(np.mean(image.array, axis=(1, 2)))
+                    metrics["std"].append(np.std(image.array, axis=(1, 2)))
+
+                    # exportToMinio(lpath_image, rpath)
                     os.remove(lpath_image)
 
                 except PIL.UnidentifiedImageError:
@@ -92,7 +97,10 @@ def upload_satelliteImages(
                 new_row = pd.DataFrame({"filename": [lpath_image.split('/')[-1]], "bbox": [bb]})
                 filename2bbox = pd.concat([filename2bbox, pd.DataFrame(new_row)], ignore_index=True)
 
-                exportToMinio(lpath_image, rpath)
+                metrics["mean"].append(np.mean(image.satellite_image.array, axis=(1, 2)))
+                metrics["std"].append(np.std(image.satellite_image.array, axis=(1, 2)))
+
+                # exportToMinio(lpath_image, rpath)
                 os.remove(lpath_image)
 
-    return filename2bbox
+    return filename2bbox, metrics

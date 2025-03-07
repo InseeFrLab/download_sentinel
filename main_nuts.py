@@ -5,6 +5,8 @@ import geemap
 import argparse
 import time
 import pandas as pd
+import numpy as np
+import yaml
 
 from src.utils import exportToMinio
 from src.utils import get_root_path
@@ -17,11 +19,10 @@ from src.constants import selected_bands
 def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM):
     print("Lancement du téléchargement des données SENTINEL2")
     root_path = get_root_path()
-
-    path_s3 = f"""data-raw/SENTINEL2/{NUTS3}/{int(START_DATE[0:4])}/"""
+    path_s3 = f"""data-preprocessed/patchs/CLCplus-Backbone/SENTINEL2/{NUTS3}/{int(START_DATE[0:4])}/250/"""
     path_local = os.path.join(
         root_path,
-        f"""data/SENTINEL2/{NUTS3}/{int(START_DATE[0:4])}""",
+        f"""data/patchs/CLCplus-Backbone/SENTINEL2/{NUTS3}/{int(START_DATE[0:4])}/250""",
     )
 
     os.makedirs(path_local, exist_ok=True)
@@ -30,6 +31,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM):
 
     polygons_nuts3 = get_nuts3_polygon(NUTS3)
     filename2bbox = pd.DataFrame(columns=["filename", "bbox"])
+    metrics = {"mean": [], "std": []}
 
     for num_poly, polygon_nuts3 in enumerate(polygons_nuts3.geoms):
         coords = list(polygon_nuts3.exterior.coords)
@@ -51,7 +53,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             num_threads=10,
         )
 
-        filename2bbox = upload_satelliteImages(
+        filename2bbox, metrics = upload_satelliteImages(
             path_local,
             f"s3://{bucket}/{path_s3}",
             DIM,
@@ -60,6 +62,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM):
             polygon_nuts3.exterior,
             EPSG,
             filename2bbox,
+            metrics,
             True,
         )
 
@@ -73,6 +76,25 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM):
     filename2bbox.to_parquet(path_filename2bbox, index=False)
     exportToMinio(path_filename2bbox, f"s3://{bucket}/{path_s3}")
     os.remove(path_filename2bbox)
+
+    metrics_global = {
+        key: np.mean(
+            np.stack(metrics[key]), axis=0
+        ).tolist()
+        for key in ["mean", "std"]
+    }
+
+    path_metrics_global = os.path.join(
+        root_path,
+        "metrics-normalization.yaml",
+    )
+
+    with open(path_metrics_global, "w") as f:
+        yaml.dump(metrics_global, f, default_flow_style=False)
+
+    exportToMinio(path_metrics_global, f"s3://{bucket}/{path_s3}")
+    os.remove(path_metrics_global)
+
     print(f"""Le processus est fini et les images sont stockées ici {f"s3://{bucket}/{path_s3}"}""")
 
 
