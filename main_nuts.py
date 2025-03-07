@@ -99,7 +99,10 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
     os.remove(path_metrics_global)
 
     if exportCLC:
-        label_dir = f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/"
+        label_dir = os.path.join(
+            root_path,
+            f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/",
+        )
         os.makedirs(label_dir)
         export_url = f"https://copernicus.discomap.eea.europa.eu/arcgis/rest/services/CLC_plus/CLMS_CLCplus_RASTER_{year}_010m_eu/ImageServer/exportImage"
         for index, row in filename2bbox.iterrows():
