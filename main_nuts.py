@@ -99,6 +99,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
     os.remove(path_metrics_global)
 
     if exportCLC:
+        print("Download of the CLCPlus labels")
         label_dir_raw = f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/"
         label_dir = os.path.join(
             root_path,
