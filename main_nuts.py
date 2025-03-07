@@ -45,7 +45,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
             print('No result for this bbox')
             continue
 
-        fishnet = geemap.fishnet(aoi, rows=4, cols=4, delta=0.5)
+        fishnet = geemap.fishnet(aoi, rows=1, cols=1, delta=0)
         geemap.download_ee_image_tiles(
             s2_sr_harmonized,
             fishnet,
@@ -139,7 +139,6 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
                 label_dir+npy_filename,
                 f"{"s3://projet-hackathon-ntts-2025"}/{label_dir}",
             )
-            shutil.rmtree(label_dir, ignore_errors=True)
 
     print(f"""Le processus est fini et les images sont stockées ici {f"s3://{bucket}/{path_s3}"}""")
 

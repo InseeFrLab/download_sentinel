@@ -46,7 +46,7 @@ def download_sentinel2(bucket, COUNTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM,
             print('No result for this bbox')
             continue
 
-        fishnet = geemap.fishnet(aoi, rows=4, cols=4, delta=0.5)
+        fishnet = geemap.fishnet(aoi, rows=1, cols=1, delta=0)
         geemap.download_ee_image_tiles(
             s2_sr_harmonized,
             fishnet,
