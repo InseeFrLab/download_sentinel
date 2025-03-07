@@ -80,7 +80,6 @@ def upload_satelliteImages(
                 try:
                     image = SatelliteImage.from_raster(
                         file_path=lpath_image,
-                        n_bands=12,
                     )
                     new_row = pd.DataFrame({"filename": [lpath_image.split('/')[-1]], "bbox": [image.bounds]})
                     filename2bbox = pd.concat([filename2bbox, pd.DataFrame(new_row)], ignore_index=True)
@@ -89,7 +88,7 @@ def upload_satelliteImages(
                     metrics["std"].append(np.std(image.array, axis=(1, 2)))
 
                     exportToMinio(lpath_image, rpath)
-                    os.remove(lpath_image)
+                    # os.remove(lpath_image)
 
                 except PIL.UnidentifiedImageError:
                     print("L'image ne possède pas assez de bandes")
@@ -101,6 +100,6 @@ def upload_satelliteImages(
                 metrics["std"].append(np.std(image.satellite_image.array, axis=(1, 2)))
 
                 exportToMinio(lpath_image, rpath)
-                os.remove(lpath_image)
+                # os.remove(lpath_image)
 
     return filename2bbox, metrics
