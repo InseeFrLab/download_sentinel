@@ -47,7 +47,7 @@ spec:
           - name: sampleProp
           - name: exportCLC
       container:
-        image: inseefrlab/onyxia-vscode-pytorch:py3.12.6
+        image: rayaberova/hackathon-ntts-2025:main
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c"]
         args: [

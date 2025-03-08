@@ -99,7 +99,7 @@ def download_sentinel2(bucket, COUNTRY, START_DATE, END_DATE, CLOUD_FILTER, DIM,
     exportToMinio(path_metrics_global, f"s3://{bucket}/{path_s3}")
     os.remove(path_metrics_global)
 
-    if exportCLC:
+    if exportCLC is True:
         print("Download of the CLCPlus labels")
         label_dir_raw = f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/"
         label_dir = os.path.join(

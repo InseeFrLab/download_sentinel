@@ -21,7 +21,4 @@ done
 
 json_string="${json_string%,*} }"
 
-echo "$json_string" > /home/onyxia/work/hackathon-ntts-2025/preprocess/GCP_credentials.json
-
-conda install -c conda-forge gdal=3.9.3 -y
-pip install -r requirements.txt --no-cache-dir
+echo "$json_string" > /api/hackathon-ntts-2025/preprocess/GCP_credentials.json
