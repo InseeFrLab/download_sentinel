@@ -1,6 +1,6 @@
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon
-from src.constants import nuts3_filepath
+from src.constants import nuts3_filepath, polygon_ukraine_next_ue
 import random
 
 
@@ -31,7 +31,10 @@ def get_sampled_country_polygon(country_id: str, sample_prop: float):
 def get_nuts3_polygon(nuts3_id: str):
     gdf = gpd.read_file(nuts3_filepath)
 
-    poly_nuts3 = gdf[gdf['NUTS_ID'] == nuts3_id].iloc[0].geometry
+    if 'NUTS_ID' == "UKRAINE":
+        poly_nuts3 = Polygon(polygon_ukraine_next_ue["coordinates"][0])
+    else:
+        poly_nuts3 = gdf[gdf['NUTS_ID'] == nuts3_id].iloc[0].geometry
 
     # Lisser le polygone (facteur de tolérance ajustable)
     tolerance = 0.001
