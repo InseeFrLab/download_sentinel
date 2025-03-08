@@ -8,14 +8,14 @@ spec:
   arguments:
     parameters:
       - name: regions
-        value: '[{"country": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true},
-                 {"country": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": true}]'
+        value: '[{"country": "BE100", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "BE251", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "FRK26", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "FRJ27", "startDate": "2018-05-01", "endDate": "2018-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "BE100", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "BE251", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "FRK26", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": "yes"},
+                 {"country": "FRJ27", "startDate": "2021-05-01", "endDate": "2021-09-01", "sampleProp": 0.05, "exportCLC": "yes"}]'
   templates:
     # Entrypoint DAG template
     - name: main

@@ -98,7 +98,7 @@ def download_sentinel2(bucket, NUTS3, START_DATE, END_DATE, CLOUD_FILTER, DIM, e
     exportToMinio(path_metrics_global, f"s3://{bucket}/{path_s3}")
     os.remove(path_metrics_global)
 
-    if exportCLC is True:
+    if exportCLC == "yes":
         print("Download of the CLCPlus labels")
         label_dir_raw = f"data-preprocessed/labels/CLCplus-Backbone/SENTINEL2/{NUTS3}/{year}/250/"
         label_dir = os.path.join(
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     parser.add_argument("--nuts3", type=str, required=True, help="NUTS3 (e.g., 'BE100')")
     parser.add_argument("--startDate", type=str, required=True, help="startDate (e.g., '2018-05-01')")
     parser.add_argument("--endDate", type=str, required=True, help="endDate (e.g., '2018-09-01')")
-    parser.add_argument("--exportCLC", type=tuple, required=True, help="exportCLC (e.g., True)")
+    parser.add_argument("--exportCLC", type=str, required=True, help="exportCLC (e.g., 'yes')")
     args = parser.parse_args()
 
     bucket = "projet-hackathon-ntts-2025"
